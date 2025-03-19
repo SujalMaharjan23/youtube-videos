@@ -20,9 +20,9 @@ Route::group(['prefix' => 'admin/youtube', 'middleware' => ['auth:admin']], func
     Route::group(['prefix' => 'channels'], function (){
         Route::get('/', [ChannelController::class, 'index'])->name('admin.channels.index');
         Route::post('/', [ChannelController::class, 'store'])->name('admin.channels.store');
-        Route::get('/{id}', [ChannelController::class, 'show'])->name('admin.channels.show');
-        Route::put('/{id}', [ChannelController::class, 'update'])->name('admin.channels.update');
-        Route::delete('/{id}', [ChannelController::class, 'destroy'])->name('admin.channels.destroy');
+        Route::get('/{channelID}', [ChannelController::class, 'show'])->name('admin.channels.show');
+        Route::put('/{channelID}', [ChannelController::class, 'update'])->name('admin.channels.update');
+        Route::delete('/{channelID}', [ChannelController::class, 'destroy'])->name('admin.channels.destroy');
     });
 });
 
