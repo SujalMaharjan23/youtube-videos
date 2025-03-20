@@ -46,7 +46,9 @@ class ChannelControllerTest extends TestCase
 
         // Assert: Check response and database
         $response->assertStatus(201)
-                 ->assertJson(['message' => 'Channel added successfully']);
+            ->assertJson([
+                'message' => 'Channel added successfully'
+            ]);
         $this->assertDatabaseHas('youtube_channels', [
             'channel_id' => 'UC123456789',
             'channel_name' => 'Test Channel',
@@ -71,7 +73,9 @@ class ChannelControllerTest extends TestCase
 
         // Assert: Check 401 response
         $response->assertStatus(401)
-                 ->assertJson(['message' => 'Unauthorized']);
+            ->assertJson([
+                'message' => 'Unauthorized'
+            ]);
     }
 
     public function test_index_returns_all_channels_for_public()
@@ -91,12 +95,12 @@ class ChannelControllerTest extends TestCase
 
         // Act: Send GET request
         $response = $this->getJson('/api/admin/youtube/channels');
-        
+
         // dump($response->json());
 
         // Assert: Check response
         $response->assertStatus(200)
-                 ->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_show_returns_channel_with_tier()
@@ -119,8 +123,12 @@ class ChannelControllerTest extends TestCase
 
         // Assert: Check response
         $response->assertStatus(200)
-                 ->assertJsonFragment(['channel_id' => $channel->channel_id])
-                 ->assertJsonFragment(['tier_id' => $tier->id]);
+            ->assertJsonFragment([
+                'channel_id' => $channel->channel_id
+            ])
+            ->assertJsonFragment([
+                'tier_id' => $tier->id
+            ]);
     }
 
     public function test_admin_can_update_channel()
@@ -156,7 +164,9 @@ class ChannelControllerTest extends TestCase
 
         // Assert: Check response and database
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'Channel updated successfully']);
+            ->assertJson([
+                'message' => 'Channel updated successfully'
+            ]);
         $this->assertDatabaseHas('youtube_channels', [
             'id' => $channel->id,
             'channel_name' => 'Updated Channel',
@@ -175,21 +185,33 @@ class ChannelControllerTest extends TestCase
         // Arrange: Create admin and channel
         $admin = Admin::factory()->create();
         Sanctum::actingAs($admin, ['*'], 'admin');
+        $tier = SourceTier::factory()->create();
         $channel = Channel::factory()->create();
+        DB::table('youtube_tiers_pivot')->insert([
+            'channel_id' => $channel->channel_id,
+            'tier_id' => $tier->id,
+        ]);
 
         // Debugging: Dump the database contents
         // dump(DB::table('youtube_channels')->get()->toArray());
-        
+
         // Act: Send DELETE request
         $response = $this->deleteJson("/api/admin/youtube/channels/{$channel->id}");
-        
+
         // Debugging: Dump the database contents
         // dump(DB::table('youtube_channels')->get()->toArray());
-        
+
         // Assert: Check response and database
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'Channel and related videos deleted successfully']);
-        $this->assertDatabaseMissing('youtube_channels', ['id' => $channel->id]);
+            ->assertJson([
+                'message' => 'Channel and related videos deleted successfully'
+            ]);
+        $this->assertDatabaseMissing('youtube_channels', [
+            'id' => $channel->id
+        ]);
+        $this->assertDatabaseMissing('youtube_tiers_pivot', [
+            'channel_id' => $channel->channel_id,
+        ]);
     }
 
     /**
