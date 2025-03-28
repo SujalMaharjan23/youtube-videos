@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\YoutubeVideoController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,7 +18,10 @@ Route::prefix('admin')->group(function () {
 
 // Admin YouTube Channels Routes
 Route::group(['prefix' => 'admin/youtube', 'middleware' => ['auth:admin']], function () {
-    Route::group(['prefix' => 'channels'], function (){
+    Route::group(['prefix' => 'videos'], function () {
+        Route::post('/-/fetch', [YoutubeVideoController::class, 'fetchAndStoreVideos'])->name('admin.youtube.videos.fetch');
+    });
+    Route::group(['prefix' => 'channels'], function () {
         Route::get('/', [ChannelController::class, 'index'])->name('admin.channels.index');
         Route::post('/', [ChannelController::class, 'store'])->name('admin.channels.store');
         Route::get('/{channelID}', [ChannelController::class, 'show'])->name('admin.channels.show');
